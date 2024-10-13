@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import sessionmaker, relationship, Session
 from db.main import Base
 
 class User(Base):
@@ -14,7 +15,8 @@ class DriverCredentials(Base):
     
     driver_id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True)
-    hashed_password = Column(String)
+    password = Column(String)
+    email = Column(String, unique=True, index=True)
 
     # One-to-One relationship with DriverInfo
     driver_info = relationship("DriverInfo", back_populates="credentials", uselist=False)

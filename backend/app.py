@@ -65,3 +65,63 @@ async def protected_route(token: Annotated[str | None, Header()] = None):
     username = payload.get("sub")
     
     return {"message": "Welcome to the protected route!", "user": username}
+
+# Driver signup route
+@app.post("/driver/signup", response_model=app_models.DriverInfoOut)
+async def driver_signup(driver: app_models.DriverSignup, db: Session = Depends(get_db)):
+    # Check if username or email already exists
+    existing_driver = db.query(models.DriverCredentials).filter(
+        (models.DriverCredentials.username == driver.username) |
+        (models.DriverCredentials.email == driver.email)
+    ).first()
+    if existing_driver:
+        raise HTTPException(status_code=400, detail="Username or email already registered")
+
+    # Hash the password
+    hashed_password = services.get_password_hash(driver.password)
+
+    # Create new driver credentials
+    new_driver_creds = models.DriverCredentials(
+        username=driver.username,
+        email=driver.email,
+        hashed_password=hashed_password
+    )
+    db.add(new_driver_creds)
+    db.commit()
+    db.refresh(new_driver_creds)
+
+    # Create new driver info linked to the credentials
+    new_driver_info = app_models.DriverInfo(
+        driver_id=new_driver_creds.driver_id,
+        name=driver.name,
+        phone_number=driver.phone_number,
+        address=driver.address
+    )
+    db.add(new_driver_info)
+    db.commit()
+    db.refresh(new_driver_info)
+
+    # Return the combined driver information
+    return app_models.DriverInfoOut(
+        driver_id=new_driver_creds.driver_id,
+        username=new_driver_creds.username,
+        email=new_driver_creds.email,
+        name=new_driver_info.name,
+        phone_number=new_driver_info.phone_number,
+        address=new_driver_info.address
+    )
+
+# Driver login route
+@app.post("/driver/login")
+async def driver_login(login_data: app_models.DriverLogin, db: Session = Depends(get_db)):
+    # Check if the email exists
+    db_driver = db.query(models.DriverCredentials).filter(models.DriverCredentials.email == login_data.email).first()
+    if not db_driver:
+        raise HTTPException(status_code=400, detail="Incorrect email or password")
+
+    # Verify the password
+    if not services.verify_password(login_data.password, db_driver.hashed_password):
+        raise HTTPException(status_code=400, detail="Incorrect email or password")
+
+    # Return a success message or token (you can implement JWT here if needed)
+    return {"message": f"Welcome, {db_driver.username}!"}
