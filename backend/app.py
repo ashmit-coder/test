@@ -80,7 +80,7 @@ async def driver_signup(driver: app_models.DriverSignup, db: Session = Depends(g
     new_driver_creds = models.DriverCredentials(
         username=driver.username,
         email=driver.email,
-        hashed_password=hashed_password
+        password=hashed_password
     )
     db.add(new_driver_creds)
     db.commit()
@@ -116,7 +116,7 @@ async def driver_login(login_data: app_models.DriverLogin, db: Session = Depends
         raise HTTPException(status_code=400, detail="Incorrect email or password")
 
    
-    if not services.verify_password(login_data.password, db_driver.hashed_password):
+    if not services.verify_password(login_data.password, db_driver.password):
         raise HTTPException(status_code=400, detail="Incorrect email or password")
 
 
