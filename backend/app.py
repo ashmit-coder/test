@@ -6,6 +6,7 @@ from models import app_models
 from auth import services
 from typing import Annotated
 from db import redis_db
+from datetime import datetime
 
 app = FastAPI()
 
@@ -134,7 +135,7 @@ async def create_ride_request(ride_request: app_models.RideRequestSchema,token: 
     user = services.validate_jwt(token)
 
     new_ride = {
-        "id": str(user.get("sub")) + "_" + ride_request.pickup_location + "_" + ride_request.dropoff_location,  
+        "id": str(user.get("sub")) + "_" + str(datetime.now()),  
         "user_id": user.get("sub"),
         "passenger_name": ride_request.passenger_name,
         "pickup_location": ride_request.pickup_location,
