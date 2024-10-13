@@ -17,6 +17,9 @@ class DriverSignup(BaseModel):
     name: str
     phone_number: str
     address: str
+    vehicle_capacity :str
+    vehicle_number :str
+    vehicle_brand :str
 
 class DriverLogin(BaseModel):
     email: str
@@ -29,6 +32,16 @@ class DriverInfoOut(BaseModel):
     name: str
     phone_number: str
     address: str
+    vehicle_capacity :str
+    vehicle_number :str
+    vehicle_brand :str
 
     class Config:
         form_atributes = True
+
+class RideRequestSchema(BaseModel):
+    passenger_name: str
+    pickup_location: str
+    dropoff_location: str
+    status: str
+    capacity:str

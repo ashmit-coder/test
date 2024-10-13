@@ -10,6 +10,8 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     password = Column(String)
 
+    ride_requests = relationship("RideRequest", back_populates="user")
+
 class DriverCredentials(Base):
     __tablename__ = "driver_credentials"
     
@@ -30,5 +32,23 @@ class DriverInfo(Base):
     name = Column(String)
     phone_number = Column(String)
     address = Column(String)
+    vehicle_capacity = Column(String)
+    vehicle_number = Column(String)
+    vehicle_brand = Column(String)
 
     credentials = relationship("DriverCredentials", back_populates="driver_info")
+
+class RideRequest(Base):
+    __tablename__ = "ride_requests"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)  # Added user_id as a foreign key
+    driver_id = Column(Integer, ForeignKey("driver_credentials.driver_id"))
+    passenger_name = Column(String)
+    pickup_location = Column(String)
+    dropoff_location = Column(String)
+    status = Column(String)
+
+    # Relationship with User and DriverCredentials
+    user = relationship("User", back_populates="ride_requests")
+    driver = relationship("DriverCredentials")
