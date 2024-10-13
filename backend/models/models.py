@@ -18,10 +18,10 @@ class DriverCredentials(Base):
     password = Column(String)
     email = Column(String, unique=True, index=True)
 
-    # One-to-One relationship with DriverInfo
+
     driver_info = relationship("DriverInfo", back_populates="credentials", uselist=False)
 
-# SQLAlchemy Model for Driver Info
+
 class DriverInfo(Base):
     __tablename__ = "driver_info"
     
@@ -31,5 +31,4 @@ class DriverInfo(Base):
     phone_number = Column(String)
     address = Column(String)
 
-    # Link back to DriverCredentials
     credentials = relationship("DriverCredentials", back_populates="driver_info")

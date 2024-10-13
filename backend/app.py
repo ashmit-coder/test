@@ -11,7 +11,6 @@ app = FastAPI()
 # Create tables on startup
 models.Base.metadata.create_all(bind=engine)
 
-# Route to create a new user
 @app.post("/users/signup")
 def create_user(user: app_models.UserCreate, db: Session = Depends(get_db)):
 
@@ -34,17 +33,14 @@ def login(user: app_models.UserLogin, db: Session = Depends(get_db)):
             detail="Incorrect username or password"
         )
 
-    # Verify the password
     if not services.verify_password(user.password ,db_user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password"
         )
 
-    # Generate a JWT token
-    access_token = services.create_access_token(data={"sub": db_user.username})
+    access_token = services.create_access_token(data={"sub": db_user.user_id})
 
-    # Return the token
     return {"access_token": access_token, "token_type": "bearer"}
 
 # Route to get a user by ID
@@ -61,7 +57,7 @@ async def protected_route(token: Annotated[str | None, Header()] = None):
     # Validate the token
     payload = services.validate_jwt(token)
     
-    # You can access the user's data from the payload if needed
+    
     username = payload.get("sub")
     
     return {"message": "Welcome to the protected route!", "user": username}
@@ -69,7 +65,7 @@ async def protected_route(token: Annotated[str | None, Header()] = None):
 # Driver signup route
 @app.post("/driver/signup", response_model=app_models.DriverInfoOut)
 async def driver_signup(driver: app_models.DriverSignup, db: Session = Depends(get_db)):
-    # Check if username or email already exists
+
     existing_driver = db.query(models.DriverCredentials).filter(
         (models.DriverCredentials.username == driver.username) |
         (models.DriverCredentials.email == driver.email)
@@ -77,10 +73,10 @@ async def driver_signup(driver: app_models.DriverSignup, db: Session = Depends(g
     if existing_driver:
         raise HTTPException(status_code=400, detail="Username or email already registered")
 
-    # Hash the password
+    
     hashed_password = services.get_password_hash(driver.password)
 
-    # Create new driver credentials
+    
     new_driver_creds = models.DriverCredentials(
         username=driver.username,
         email=driver.email,
@@ -90,8 +86,8 @@ async def driver_signup(driver: app_models.DriverSignup, db: Session = Depends(g
     db.commit()
     db.refresh(new_driver_creds)
 
-    # Create new driver info linked to the credentials
-    new_driver_info = app_models.DriverInfo(
+    
+    new_driver_info = models.DriverInfo(
         driver_id=new_driver_creds.driver_id,
         name=driver.name,
         phone_number=driver.phone_number,
@@ -101,7 +97,7 @@ async def driver_signup(driver: app_models.DriverSignup, db: Session = Depends(g
     db.commit()
     db.refresh(new_driver_info)
 
-    # Return the combined driver information
+    
     return app_models.DriverInfoOut(
         driver_id=new_driver_creds.driver_id,
         username=new_driver_creds.username,
@@ -111,17 +107,20 @@ async def driver_signup(driver: app_models.DriverSignup, db: Session = Depends(g
         address=new_driver_info.address
     )
 
-# Driver login route
+
 @app.post("/driver/login")
 async def driver_login(login_data: app_models.DriverLogin, db: Session = Depends(get_db)):
-    # Check if the email exists
+
     db_driver = db.query(models.DriverCredentials).filter(models.DriverCredentials.email == login_data.email).first()
     if not db_driver:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
 
-    # Verify the password
+   
     if not services.verify_password(login_data.password, db_driver.hashed_password):
         raise HTTPException(status_code=400, detail="Incorrect email or password")
 
-    # Return a success message or token (you can implement JWT here if needed)
-    return {"message": f"Welcome, {db_driver.username}!"}
+
+    access_token = services.create_access_token(data={"sub": db_driver.driver_id})
+
+    
+    return {"access_token": access_token, "token_type": "bearer"}

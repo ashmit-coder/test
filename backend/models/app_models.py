@@ -10,7 +10,6 @@ class UserLogin(BaseModel):
     password: str
 
 
-# Pydantic schema for driver signup
 class DriverSignup(BaseModel):
     username: str
     email: str
@@ -19,12 +18,10 @@ class DriverSignup(BaseModel):
     phone_number: str
     address: str
 
-# Pydantic schema for driver login
 class DriverLogin(BaseModel):
     email: str
     password: str
 
-# Pydantic schema for returning driver information
 class DriverInfoOut(BaseModel):
     driver_id: int
     username: str

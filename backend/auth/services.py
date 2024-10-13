@@ -8,19 +8,16 @@ from passlib.context import CryptContext
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 SECRET_KEY = "temperory"
-ALGORITHM = "HS256"  # Algorithm for JWT encoding
+ALGORITHM = "HS256" 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
-# Hash the password
 def get_password_hash(password: str):
     return pwd_context.hash(password)
 
-# Verify password
 def verify_password(plain_password: str,hashed_password: str):
     return pwd_context.verify(plain_password, hashed_password)
 
-# Create JWT token
 def create_access_token(data: dict):
     to_encode = data.copy()
     expire = datetime.now() + timedelta(minutes=60)
