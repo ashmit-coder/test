@@ -135,7 +135,7 @@ async def create_ride_request(ride_request: app_models.RideRequestSchema,token: 
     user = services.validate_jwt(token)
 
     new_ride = {
-        "id": str(user.get("sub")) + "_" + str(datetime.now()),  
+        "id": str(user.get("sub")) + "_" + ride_request.pickup_location + "_" + ride_request.dropoff_location,  # this is so that one user can have one ride request at a time
         "user_id": user.get("sub"),
         "passenger_name": ride_request.passenger_name,
         "pickup_location": ride_request.pickup_location,
