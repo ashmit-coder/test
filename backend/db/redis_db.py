@@ -8,10 +8,11 @@ load_dotenv()
 REDIS_URL = os.getenv("REDIS_URL")
 
 # print(REDIS_URL)
-redis_client = redis.Redis.from_url(REDIS_URL,decode_responses=True)
+redis_pool = redis.ConnectionPool.from_url(REDIS_URL)
+redis_client = redis.Redis(connection_pool=redis_pool,decode_responses=True)
 
 def cache_ride_request(ride_data: dict, expiration: int = 3600):
-    ride_request_id = ride_data['id']  # Use request ID to set the key
+    ride_request_id = ride_data['id']  
     redis_client.set(f"ride_request:{ride_request_id}", json.dumps(ride_data), ex=expiration)
 
 def get_all_ride_requests():
