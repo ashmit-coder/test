@@ -20,6 +20,7 @@ class DriverSignup(BaseModel):
     vehicle_capacity :str
     vehicle_number :str
     vehicle_brand :str
+    license_number:str
 
 class DriverLogin(BaseModel):
     email: str
@@ -45,3 +46,11 @@ class RideRequestSchema(BaseModel):
     dropoff_location: str
     status: str
     capacity:str
+
+class AdminCreate(BaseModel):
+    username: str
+    password: str
+
+class AdminLogin(BaseModel):
+    username: str
+    password: str

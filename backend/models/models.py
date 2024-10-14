@@ -35,6 +35,7 @@ class DriverInfo(Base):
     vehicle_capacity = Column(String)
     vehicle_number = Column(String)
     vehicle_brand = Column(String)
+    license_number = Column(String)
 
     credentials = relationship("DriverCredentials", back_populates="driver_info")
 
@@ -52,3 +53,17 @@ class RideRequest(Base):
     # Relationship with User and DriverCredentials
     user = relationship("User", back_populates="ride_requests")
     driver = relationship("DriverCredentials")
+
+class Admin(Base):
+    __tablename__ = "admins"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+
+class FleetInfo(Base):
+    __tablename__ = "fleet_info"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    admin_id = Column(Integer, ForeignKey("admins.id", ondelete="CASCADE"))
+    driver_id = Column(Integer, ForeignKey("driver_credentials.driver_id", ondelete="CASCADE"))

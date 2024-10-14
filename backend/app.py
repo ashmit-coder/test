@@ -41,7 +41,7 @@ def login(user: app_models.UserLogin, db: Session = Depends(get_db)):
             detail="Incorrect username or password"
         )
 
-    access_token = services.create_access_token(data={"sub": db_user.user_id})
+    access_token = services.create_access_token(data={"sub": db_user.user_id,"role":"user"})
 
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -95,7 +95,8 @@ async def driver_signup(driver: app_models.DriverSignup, db: Session = Depends(g
         address=driver.address,
         vehicle_brand = driver.vehicle_brand,
         vehicle_capacity = driver.vehicle_capacity,
-        vehicle_number = driver.vehicle_number
+        vehicle_number = driver.vehicle_number,
+        license_number  = driver.license_number
     )
     db.add(new_driver_info)
     db.commit()
@@ -125,7 +126,7 @@ async def driver_login(login_data: app_models.DriverLogin, db: Session = Depends
     if not services.verify_password(login_data.password, db_driver.password):
         raise HTTPException(status_code=400, detail="Incorrect email or password")
 
-    access_token = services.create_access_token(data={"sub": db_driver.driver_id})
+    access_token = services.create_access_token(data={"sub": db_driver.driver_id,"role":"driver"})
 
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -156,12 +157,80 @@ async def get_ride_requests(token: Annotated[str | None, Header()]):
 
 @app.post("/driver/ride_request/{ride_request_id}/accept")
 async def accept_ride_request(ride_request_id: int, token: Annotated[str | None, Header()]):
+    driver_id = services.validate_jwt(token)
 
-    current_driver = services.validate_jwt(token)
-    # Assign the driver to the ride request
-    updated_ride = redis_db.assign_driver_to_ride(ride_request_id, current_driver.get("sub"))
-    if not updated_ride:
-        raise HTTPException(status_code=404, detail="Ride request not found or already accepted")
-
-    return {"message": "Ride request accepted", "ride_request": updated_ride}
+    ride = redis_db.assign_driver_to_ride(ride_request_id, driver_id.get('sub'))
+    if not ride:
+        raise HTTPException(status_code=404, detail="Ride request not found")
+    return {"message": "Ride assigned to driver", "ride": ride}
         
+
+@app.post("/driver/cancel_ride/{ride_request_id}")
+async def cancel_ride(ride_request_id: int, token: Annotated[str | None, Header()]):
+    driver = services.validate_jwt(token)
+
+    canceled_ride = redis_db.cancel_assigned_ride(ride_request_id)
+    
+    if not canceled_ride:
+        raise HTTPException(status_code=404, detail="Assigned ride not found")
+    
+    return {"message": "Ride has been canceled and moved back to pending requests", "ride": canceled_ride}
+
+
+@app.post("/admin/signup")
+def admin_signup(admin: app_models.AdminCreate, db: Session = Depends(get_db)):
+
+    db_admin = db.query(models.Admin).filter(models.Admin.username == admin.username).first()
+    if db_admin:
+        raise HTTPException(status_code=400, detail="Username already registered")
+
+    hashed_password = services.get_password_hash(admin.password)
+    new_admin = models.Admin(username=admin.username, hashed_password=hashed_password)
+
+    db.add(new_admin)
+    db.commit()
+    db.refresh(new_admin)
+
+    return {"message": "Admin registered successfully"}
+
+
+@app.post("/admin/login")
+def admin_login(admin: app_models.AdminLogin, db: Session = Depends(get_db)):
+
+    db_admin = db.query(models.Admin).filter(models.Admin.username == admin.username).first()
+
+    if not db_admin or not services.verify_password(admin.password, db_admin.hashed_password):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
+
+    access_token = services.create_access_token(data={"sub": db_admin.id,"role":"admin"})
+
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
+@app.post("/admin/fleet/add/{driver_id}")
+def add_driver_to_fleet(
+    driver_id: int,
+    token: Annotated[str | None, Header()],
+    db: Session = Depends(get_db),
+    
+):
+
+    admin = services.validate_jwt(token)
+    db_admin = db.query(models.Admin).filter(models.Admin.id == admin.get("sub")).first()
+    if not db_admin:
+        raise HTTPException(status_code=404, detail="Admin not found")
+
+    db_driver = db.query(models.DriverCredentials).filter(models.DriverCredentials.driver_id == driver_id).first()
+    if not db_driver:
+        raise HTTPException(status_code=404, detail="Driver not found")
+
+    existing_entry = db.query(models.FleetInfo).filter(models.FleetInfo.admin_id == db_admin.id, models.FleetInfo.driver_id == driver_id).first()
+    if existing_entry:
+        raise HTTPException(status_code=400, detail="Driver is already in your fleet")
+
+    fleet_entry = models.FleetInfo(admin_id=db_admin.id, driver_id=driver_id)
+    db.add(fleet_entry)
+    db.commit()
+    db.refresh(fleet_entry)
+
+    return {"message": "Driver added to fleet successfully"}

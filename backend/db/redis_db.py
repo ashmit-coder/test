@@ -25,10 +25,34 @@ def get_all_ride_requests():
     return requests
 
 def assign_driver_to_ride(ride_request_id: int, driver_id: int):
+
     ride_data = redis_client.get(f"ride_request:{ride_request_id}")
     if ride_data:
         ride = json.loads(ride_data)
-        ride['driver_id'] = driver_id  
-        cache_ride_request(ride)  
+        
+        ride['driver_id'] = driver_id
+        ride['status'] = "assigned"
+
+        redis_client.set(f"ride_assigned:{ride_request_id}", json.dumps(ride))
+
+        redis_client.delete(f"ride_request:{ride_request_id}")
+
+        return ride
+    return None
+
+def cancel_assigned_ride(ride_request_id: int):
+
+    ride_data = redis_client.get(f"ride_assigned:{ride_request_id}")
+    
+    if ride_data:
+        ride = json.loads(ride_data)
+
+        ride['driver_id'] = None
+        ride['status'] = "pending"
+
+        redis_client.set(f"ride_request:{ride_request_id}", json.dumps(ride))
+
+        redis_client.delete(f"ride_assigned:{ride_request_id}")
+        
         return ride
     return None
