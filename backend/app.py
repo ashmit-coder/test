@@ -22,6 +22,8 @@ app.add_middleware(
 )
 
 # Create tables on startup
+# models.Base.metadata.drop_all(bind=engine)
+
 models.Base.metadata.create_all(bind=engine)
 
 @app.post("/users/signup")
@@ -54,7 +56,7 @@ def login(user: app_models.UserLogin, db: Session = Depends(get_db)):
 
     access_token = services.create_access_token(data={"sub": db_user.user_id,"role":"user"})
 
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"token": access_token, "token_type": "bearer"}
 
 # Route to get a user by ID
 # @app.get("/users/{user_id}")
@@ -139,7 +141,7 @@ async def driver_login(login_data: app_models.DriverLogin, db: Session = Depends
 
     access_token = services.create_access_token(data={"sub": db_driver.driver_id,"role":"driver"})
 
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"token": access_token, "token_type": "bearer"}
 
 @app.post("/user/ride_request")
 async def create_ride_request(ride_request: app_models.RideRequestSchema,token: Annotated[str | None, Header()]):
@@ -214,7 +216,7 @@ def admin_login(admin: app_models.AdminLogin, db: Session = Depends(get_db)):
 
     access_token = services.create_access_token(data={"sub": db_admin.id,"role":"admin"})
 
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"token": access_token, "token_type": "bearer"}
 
 
 @app.post("/admin/fleet/add/{driver_id}")

@@ -6,6 +6,10 @@ import CustomerProfile from './pages/CustomerProfile';
 import CustomerSetting from './pages/CustomerSetting';
 import NewRide from './pages/NewRide';
 import SignIn from './pages/SignIn';
+import DriverSignIn from './pages/DriverSignIn';
+import DriverSignUp from './pages/DriverSignUp';
+import DriverDashboard from './pages/Driver';
+import OpenRides from './pages/OpenRides';
 
 const App = () => {
     return (
@@ -14,7 +18,11 @@ const App = () => {
                 <Route path="/" element={<Home/>} />
                 <Route path="/login" element={<SignIn/>} />
                 <Route path="/register" element={<SignUp/>} />
+                <Route path='/driver/login' element={<DriverSignIn/>}/>
+                <Route path='/driver/register' element={<DriverSignUp/>}/>
                 <Route path="/customer" element={<Customer/>} />
+                <Route path="/driver" element={<DriverDashboard/>} />
+                <Route path="/driver/rides" element={<OpenRides/>} />
                 <Route path="/customer/profile" element={<CustomerProfile/>} />
                 <Route path="/customer/setting" element={<CustomerSetting/>} />
                 <Route path="/customer/new_ride" element={<NewRide/>} />

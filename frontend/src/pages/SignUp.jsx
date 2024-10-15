@@ -78,22 +78,6 @@ const SignUp = () => {
             />
           </div>
 
-          {/* Role Selection */}
-          <div className="mb-6">
-            <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
-              Role:
-            </label>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              required
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-300"
-            >
-              <option value="user">Customer</option>
-              <option value="admin">Driver</option>
-            </select>
-          </div>
-
           <button
             type="submit"
             disabled={loading}
