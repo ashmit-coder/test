@@ -10,6 +10,7 @@ import DriverSignIn from './pages/DriverSignIn';
 import DriverSignUp from './pages/DriverSignUp';
 import DriverDashboard from './pages/Driver';
 import OpenRides from './pages/OpenRides';
+import SocketTest from './pages/Socket_test';
 
 const App = () => {
     return (
@@ -26,6 +27,8 @@ const App = () => {
                 <Route path="/customer/profile" element={<CustomerProfile/>} />
                 <Route path="/customer/setting" element={<CustomerSetting/>} />
                 <Route path="/customer/new_ride" element={<NewRide/>} />
+                <Route path="/test" element={<SocketTest/>} />
+
             </Routes>
         </Router>
     );

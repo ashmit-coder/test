@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.8.0/socket.io.js"></script>
+    <script>
+        const userId = "1"; // Replace with the actual user ID
+
+        const socket = io("http://127.0.0.1:8000/socket.io", {
+            // query: {
+            //     user_id: userId // Send the user ID as a query parameter
+            // }
+        });
+
+        // Listen for connection events
+        socket.on("connect", () => {
+            console.log("Connected to server");
+        });
+
+        socket.on("disconnect", () => {
+            console.log("Disconnected from server");
+        });
+
+        // Listen for OTP notification
+        socket.on("otp_notification", (data) => {
+            alert(`Your OTP is: ${data.otp}`);
+            // You can also handle this OTP further (e.g., prompt the user to enter it)
+        });
+
+        // Example function to ping the server
+        function ping() {
+            socket.emit('ping'); // Use socket.emit instead of ws.send
+            setTimeout(function () {
+                // Handle timeout if needed
+                console.log("Connection may have been closed");
+            }, 5000);
+        }
+
+        // Example function to handle pong response
+        function pong() {
+            // Handle pong if needed
+            console.log("Pong received");
+        }
+
+        // Call ping periodically if needed
+        // setInterval(ping, 10000); // Uncomment this line if you want to ping periodically
+    </script>
+</body>
+</html>

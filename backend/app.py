@@ -1,26 +1,31 @@
-from fastapi import FastAPI, Depends, HTTPException, status, Header
+from fastapi import FastAPI, Depends, HTTPException, status, Header,  WebSocket, WebSocketDisconnect
+import uvicorn
 from sqlalchemy.orm import Session
 from models import models
 from db.main import get_db , engine
 from models import app_models
 from auth import services
+from fastapi import FastAPI, Depends, HTTPException, status, Header
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
+
+from models import models
+from db.main import get_db, engine
+from models import app_models
+from auth import services
 from typing import Annotated
 from db import redis_db
 from datetime import datetime
-from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
 
-origins = ["*"]
+# SocketIO setup
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,  # Set the list of allowed origins
-    allow_credentials=True,  # Allow cookies and authentication headers
-    allow_methods=["*"],     # Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
-    allow_headers=["*"],     # Allow all headers (Authorization, Content-Type, etc.)
-)
 
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
 # Create tables on startup
 # models.Base.metadata.drop_all(bind=engine)
 
@@ -168,17 +173,24 @@ async def get_ride_requests(token: Annotated[str | None, Header()]):
     return {"ride_requests": ride_requests}
 
 @app.post("/driver/ride_request/{ride_request_id}/accept")
-async def accept_ride_request(ride_request_id: int, token: Annotated[str | None, Header()]):
+async def accept_ride_request(ride_request_id: str, token: Annotated[str | None, Header()]):
     driver_id = services.validate_jwt(token)
 
     ride = redis_db.assign_driver_to_ride(ride_request_id, driver_id.get('sub'))
     if not ride:
         raise HTTPException(status_code=404, detail="Ride request not found")
+    
+    user_id = (ride["user_id"])  
+
+    if user_id in active_connections:
+        user_socket = active_connections[user_id]
+        await user_socket.send_text(f"Your OTP is {ride['otp']}")
+
     return {"message": "Ride assigned to driver", "ride": ride["id"]}
         
 
 @app.post("/driver/cancel_ride/{ride_request_id}")
-async def cancel_ride(ride_request_id: int, token: Annotated[str | None, Header()]):
+async def cancel_ride(ride_request_id: str, token: Annotated[str | None, Header()]):
     driver = services.validate_jwt(token)
 
     canceled_ride = redis_db.cancel_assigned_ride(ride_request_id)
@@ -246,3 +258,22 @@ def add_driver_to_fleet(
     db.refresh(fleet_entry)
 
     return {"message": "Driver added to fleet successfully"}
+
+active_connections = {}
+
+@app.websocket("/ws/{user_id}")
+async def websocket_endpoint(websocket: WebSocket, user_id: str):
+    await websocket.accept()
+    active_connections[user_id] = websocket  # Store the connection for this user
+
+    try:
+        while True:
+            data = await websocket.receive_text()
+            if data == "hi":
+                await websocket.send_text("hi")
+    except WebSocketDisconnect:
+        del active_connections[user_id]  # Remove the connection when the user disconnects
+
+# Running both FastAPI and SocketIO
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", lifespan="on", reload=True)
