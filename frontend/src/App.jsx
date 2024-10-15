@@ -5,6 +5,7 @@ import SignUp from './pages/SignUp';
 import Customer from './pages/Customer';
 import CustomerProfile from './pages/CustomerProfile';
 import CustomerSetting from './pages/CustomerSetting';
+import NewRide from './pages/NewRide';
 
 const App = () => {
     return (
@@ -16,6 +17,7 @@ const App = () => {
                 <Route path="/customer" element={<Customer/>} />
                 <Route path="/customer/profile" element={<CustomerProfile/>} />
                 <Route path="/customer/setting" element={<CustomerSetting/>} />
+                <Route path="/customer/new_ride" element={<NewRide/>} />
             </Routes>
         </Router>
     );
