@@ -1,36 +1,58 @@
-import React, { useContext } from 'react';
-import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
-import { LatLngContext } from './LatLngContext'; // Import LatLngContext
+import React, { useContext, useEffect, useState } from 'react';
+import { GoogleMap, Marker, useJsApiLoader, DirectionsRenderer } from '@react-google-maps/api';
+import { LatLngContext } from './LatLngContext'; 
 
 const containerStyle = {
   width: '100%',
-  height: '400px',
+  height: '440px',
 };
 
 const defaultCenter = {
-  lat: 37.7749, // Default latitude (example: San Francisco)
-  lng: -122.4194, // Default longitude (example: San Francisco)
+  lat: 37.7749, 
+  lng: -122.4194, 
 };
 
 const GoogleMapComponent = () => {
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_API_KEY, // Use your API key here
-    libraries: ['places']
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_API_KEY, 
   });
 
-  const { pickupLatLng, dropLatLng } = useContext(LatLngContext); // Access lat/lng from context
+  const { pickupLatLng, dropLatLng } = useContext(LatLngContext); 
+  const [directionsResponse, setDirectionsResponse] = useState(null);
+
+  useEffect(() => {
+    if (pickupLatLng && dropLatLng) {
+      const directionsService = new window.google.maps.DirectionsService();
+      directionsService.route(
+        {
+          origin: pickupLatLng,
+          destination: dropLatLng,
+          travelMode: window.google.maps.TravelMode.DRIVING,
+        },
+        (result, status) => {
+          if (status === window.google.maps.DirectionsStatus.OK) {
+            setDirectionsResponse(result);
+          } else {
+            console.error(`error fetching directions ${result}`);
+          }
+        }
+      );
+    }
+  }, [pickupLatLng, dropLatLng]);
 
   return isLoaded ? (
     <GoogleMap
       mapContainerStyle={containerStyle}
-      center={pickupLatLng || defaultCenter} // Center map on pickup location or default
-      zoom={12}
+      center={pickupLatLng || defaultCenter} 
+      zoom={10}
+      
     >
-      {/* Marker for Pickup Location */}
+
       {pickupLatLng && <Marker position={pickupLatLng} />}
 
-      {/* Marker for Drop Location */}
       {dropLatLng && <Marker position={dropLatLng} />}
+
+      {directionsResponse && <DirectionsRenderer directions={directionsResponse} />}
     </GoogleMap>
   ) : (
     <div>Loading...</div>

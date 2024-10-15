@@ -1,12 +1,11 @@
 import React, { useState, useContext } from 'react';
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
-import { LatLngContext } from './LatLngContext'; // Import the LatLngContext
+import { LatLngContext } from './LatLngContext'; 
 
 const BookingComponent = () => {
    const [pickup, setPickup] = useState();
    const [dropup, setDrop] = useState();
 
-   // Get the context values to store lat/lng
    const { setPickupLatLng, setDropLatLng } = useContext(LatLngContext);
 
    const getCords = (place, type) => {
@@ -20,9 +19,9 @@ const BookingComponent = () => {
             };
             
             if (type === 'pickup') {
-               setPickupLatLng(latLng); // Update pickup lat/lng in context
+               setPickupLatLng(latLng); 
             } else if (type === 'drop') {
-               setDropLatLng(latLng); // Update drop lat/lng in context
+               setDropLatLng(latLng);
             }
          }
       });
@@ -119,7 +118,7 @@ const styles = {
    button: {
       padding: '10px 20px',
       fontSize: '16px',
-      backgroundColor: '#1E90FF', // Blue theme for the button
+      backgroundColor: '#1E90FF', 
       color: 'white',
       border: 'none',
       borderRadius: '5px',

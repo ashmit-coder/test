@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom"; // Make sure to install and set up React Router
+import { Link } from "react-router-dom"; 
 
 const Navbar = () => {
   return (
