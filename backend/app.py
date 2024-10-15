@@ -7,8 +7,19 @@ from auth import services
 from typing import Annotated
 from db import redis_db
 from datetime import datetime
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # Set the list of allowed origins
+    allow_credentials=True,  # Allow cookies and authentication headers
+    allow_methods=["*"],     # Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],     # Allow all headers (Authorization, Content-Type, etc.)
+)
 
 # Create tables on startup
 models.Base.metadata.create_all(bind=engine)
