@@ -12,10 +12,18 @@ const Navbar = () => {
         <ul className="flex space-x-6">
           <li>
             <Link
-              to="/"
+              to="/customer/login"
               className="text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition duration-200"
             >
-              Home
+              Customer
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/driver/login"
+              className="text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition duration-200"
+            >
+              Driver
             </Link>
           </li>
           <li>
@@ -51,20 +59,7 @@ const Navbar = () => {
             </Link>
           </li>
         </ul>
-        <div className="flex gap-4">
-          <Link
-            to="/register"
-            className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200"
-          >
-            Sign Up
-          </Link>
-          <Link
-            to="/login"
-            className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200"
-          >
-            Sign In
-          </Link>
-        </div>
+        
       </div>
     </nav>
   );

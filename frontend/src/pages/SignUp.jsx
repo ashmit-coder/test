@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom"; // For redirecting after signup
 import { FcGoogle } from "react-icons/fc";
+import Navbar from "../components/Navbar";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -43,6 +44,10 @@ const SignUp = () => {
   };
 
   return (
+    <div className="">
+
+    
+    <Navbar />
     <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
       <div className="w-full max-w-md p-8 bg-white dark:bg-gray-800 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold text-center mb-6 text-gray-900 dark:text-white">
@@ -97,7 +102,11 @@ const SignUp = () => {
             Sign up with Google
           </button>
         </div>
+        <div className="text-center mt-4">
+          already have a Account <span className="text-blue-700"><a href="/customer/login">Login Here</a></span>
+        </div>
       </div>
+    </div>
     </div>
   );
 };

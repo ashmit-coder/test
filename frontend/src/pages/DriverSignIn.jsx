@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios"
 import { FcGoogle } from "react-icons/fc";
+import Navbar from "../components/Navbar";
 
 const DriverSignIn = () => {
   const [email, setEmail] = useState("");
@@ -43,6 +44,10 @@ const DriverSignIn = () => {
 
 
   return (
+    <div className="">
+
+    
+    <Navbar />
     <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
       <div className="w-full max-w-md p-8 bg-white dark:bg-gray-800 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold text-center mb-6 text-gray-900 dark:text-white">
@@ -93,7 +98,11 @@ const DriverSignIn = () => {
             Sign in with Google
           </button>
         </div>
+        <div className="text-center mt-4">
+          Do you have a Account? <span className="text-blue-700"><a href="/driver/register">Register Now</a></span>
+        </div>
       </div>
+    </div>
     </div>
   );
 };
