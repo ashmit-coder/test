@@ -2,7 +2,7 @@ import json
 import redis 
 import os
 from dotenv import load_dotenv
-
+import random
 load_dotenv()
 
 REDIS_URL = os.getenv("REDIS_URL")
@@ -27,19 +27,23 @@ def get_all_ride_requests():
 def assign_driver_to_ride(ride_request_id: int, driver_id: int):
 
     ride_data = redis_client.get(f"ride_request:{ride_request_id}")
+
     if ride_data:
         ride = json.loads(ride_data)
-        
+
         ride['driver_id'] = driver_id
         ride['status'] = "assigned"
+
+        otp = random.randint(1000, 9999)
+        ride['otp'] = otp  
 
         redis_client.set(f"ride_assigned:{ride_request_id}", json.dumps(ride))
 
         redis_client.delete(f"ride_request:{ride_request_id}")
 
         return ride
-    return None
 
+    return None
 def cancel_assigned_ride(ride_request_id: int):
 
     ride_data = redis_client.get(f"ride_assigned:{ride_request_id}")

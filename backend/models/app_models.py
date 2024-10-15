@@ -41,10 +41,9 @@ class DriverInfoOut(BaseModel):
         form_atributes = True
 
 class RideRequestSchema(BaseModel):
-    passenger_name: str
     pickup_location: str
     dropoff_location: str
-    status: str
+    price:str
     capacity:str
 
 class AdminCreate(BaseModel):

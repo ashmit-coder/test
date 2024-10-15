@@ -149,7 +149,6 @@ async def create_ride_request(ride_request: app_models.RideRequestSchema,token: 
     new_ride = {
         "id": str(user.get("sub")) + "_" + ride_request.pickup_location + "_" + ride_request.dropoff_location,  # this is so that one user can have one ride request at a time
         "user_id": user.get("sub"),
-        "passenger_name": ride_request.passenger_name,
         "pickup_location": ride_request.pickup_location,
         "dropoff_location": ride_request.dropoff_location,
         "capacity": ride_request.capacity,
@@ -173,7 +172,7 @@ async def accept_ride_request(ride_request_id: int, token: Annotated[str | None,
     ride = redis_db.assign_driver_to_ride(ride_request_id, driver_id.get('sub'))
     if not ride:
         raise HTTPException(status_code=404, detail="Ride request not found")
-    return {"message": "Ride assigned to driver", "ride": ride}
+    return {"message": "Ride assigned to driver", "ride": ride["id"]}
         
 
 @app.post("/driver/cancel_ride/{ride_request_id}")
