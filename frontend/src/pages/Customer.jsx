@@ -10,6 +10,8 @@ const CustomerDashboard = () => {
       { id: "12345", status: "Shipped", date: "2024-10-15" },
       { id: "12345", status: "Shipped", date: "2024-10-15" },
       { id: "12346", status: "Pending", date: "2024-10-14" },
+      { id: "12346", status: "Pending", date: "2024-10-14" },
+      { id: "12346", status: "Pending", date: "2024-10-14" },
     ];
 
     const handleOrderClick = (orderId) => {
@@ -31,7 +33,7 @@ const CustomerDashboard = () => {
         {/* My Orders Section */}
         <section
           id="orders"
-          className="mb-12 bg-white dark:bg-gray-800 text-gray-900 dark:text-white p-6 rounded-lg shadow-md transition duration-200"
+          className="mb-12 bg-white  dark:bg-gray-800 text-gray-900 dark:text-white p-6 rounded-lg shadow-md"
         >
           <h2 className="text-2xl font-bold mb-4">My Orders</h2>
           <div className="overflow-x-auto">

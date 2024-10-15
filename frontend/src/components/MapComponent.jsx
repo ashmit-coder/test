@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { GoogleMap, Marker, useJsApiLoader, DirectionsRenderer } from '@react-google-maps/api';
 import { LatLngContext } from './LatLngContext'; 
 
 const containerStyle = {
   width: '100%',
-  height: '440px',
+  height: '100vh',
 };
 
 const defaultCenter = {
@@ -41,19 +41,21 @@ const GoogleMapComponent = () => {
   }, [pickupLatLng, dropLatLng]);
 
   return isLoaded ? (
-    <GoogleMap
-      mapContainerStyle={containerStyle}
-      center={pickupLatLng || defaultCenter} 
-      zoom={10}
-      
-    >
+    <div className="min-h-screen">
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={pickupLatLng || defaultCenter}
+        zoom={10}
+      >
+        {pickupLatLng && <Marker position={pickupLatLng} />}
 
-      {pickupLatLng && <Marker position={pickupLatLng} />}
+        {dropLatLng && <Marker position={dropLatLng} />}
 
-      {dropLatLng && <Marker position={dropLatLng} />}
-
-      {directionsResponse && <DirectionsRenderer directions={directionsResponse} />}
-    </GoogleMap>
+        {directionsResponse && (
+          <DirectionsRenderer directions={directionsResponse} />
+        )}
+      </GoogleMap>
+    </div>
   ) : (
     <div>Loading...</div>
   );

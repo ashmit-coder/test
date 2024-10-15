@@ -1,4 +1,4 @@
-import { Home, User, LifeBuoy, Settings } from "lucide-react";
+import { Home, User, Settings, TruckIcon } from "lucide-react";
 
 const Sidebar = () => {
   return (
@@ -13,8 +13,17 @@ const Sidebar = () => {
               href="/customer"
               className="flex items-center text-gray-800 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition duration-200"
             >
-              <Home className="mr-2" />
+              <Home className="mr-4" />
               My Orders
+            </a>
+          </li>
+          <li>
+            <a
+              href="/customer/new_ride"
+              className="flex items-center text-gray-800 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition duration-200"
+            >
+              <TruckIcon className="mr-4" />
+              New Ride
             </a>
           </li>
           <li>
@@ -22,7 +31,7 @@ const Sidebar = () => {
               href="/customer/profile"
               className="flex items-center text-gray-800 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition duration-200"
             >
-              <User className="mr-2" />
+              <User className="mr-4" />
               Profile
             </a>
           </li>
@@ -31,7 +40,7 @@ const Sidebar = () => {
               href="/customer/setting"
               className="flex items-center text-gray-800 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition duration-200"
             >
-              <Settings className="mr-2" />
+              <Settings className="mr-4" />
               Settings
             </a>
           </li>
