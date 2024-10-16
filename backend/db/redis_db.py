@@ -60,3 +60,13 @@ def cancel_assigned_ride(ride_request_id: int):
         
         return ride
     return None
+
+
+
+def set_driver_location(driver_id, location):
+    # Save the location as a hash with 'lat' and 'lng' fields
+    redis_conn.hset(f"driver:{driver_id}:location", mapping=location)
+
+def get_driver_location(driver_id):
+    # Retrieve the driver location from Redis
+    return redis_conn.hgetall(f"driver:{driver_id}:location")

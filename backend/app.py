@@ -297,22 +297,22 @@ async def driver_websocket(websocket: WebSocket, token: str):
 
     try:
         while True:
-            # Assume driver sends location as JSON: {"lat": <latitude>, "lng": <longitude>, "user_id": <user_id>}
+            
             data = await websocket.receive_json()
-            user_id = data.get("user_id")  # Get the user_id to whom this location belongs
+            user_id = data.get("user_id")  
             lat = data.get("lat")
             lng = data.get("lng")
             print(f"Driver {driver_id}, lat: {lat}, lng: {lng}")
+            
+            redis_db.set_driver_location(driver_id, {"lat": lat, "lng": lng})
+            
             print(active_connections)
-            # if user_id in active_connections:
-                # If the user is connected, send the driver's location to the user
             await active_connections[int(user_id)].send_json({
                 "driver_lat": lat,
                 "driver_lng": lng
             })
     except WebSocketDisconnect:
         print(f"Driver {driver_id} disconnected")
-
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", lifespan="on", reload=True)
