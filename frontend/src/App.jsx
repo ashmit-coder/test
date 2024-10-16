@@ -11,7 +11,8 @@ import DriverSignUp from './pages/DriverSignUp';
 import DriverDashboard from './pages/Driver';
 import OpenRides from './pages/OpenRides';
 import SocketTest from './pages/Socket_test';
-
+import DriverLocationSender from './pages/DriverTracking';
+// import DriverLocationPage from './components/Tracking';
 const App = () => {
     return (
         <Router>
@@ -28,7 +29,7 @@ const App = () => {
                 <Route path="/customer/setting" element={<CustomerSetting/>} />
                 <Route path="/customer/new_ride" element={<NewRide/>} />
                 <Route path="/test" element={<SocketTest/>} />
-
+                <Route path='/driver/location' element={<DriverLocationSender/>} />
             </Routes>
         </Router>
     );

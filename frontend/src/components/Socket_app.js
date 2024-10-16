@@ -1,15 +1,12 @@
 
-import { io } from 'socket.io-client';
+const token = localStorage.getItem('token'); 
 
+ export const socket = new WebSocket(`ws://localhost:8000/ws/socket/user?token=${token}`);
 
-const userId = "1"; // Replace with the actual user ID
-export const newSocket = io("http://127.0.0.1:8000/", {
-    query: {
-        user_id: userId // Send the user ID as a query parameter
-    },
-    autoConnect:false
-    
-}).connect()
+ socket.onopen = () => {
+   console.log('WebSocket connection opened.');
+   socket.send(JSON.stringify({ user_id }));
+ };
 
 
 

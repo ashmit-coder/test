@@ -8,7 +8,7 @@ from auth import services
 from fastapi import FastAPI, Depends, HTTPException, status, Header
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-
+from typing import Dict
 from models import models
 from db.main import get_db, engine
 from models import app_models
@@ -20,7 +20,15 @@ from datetime import datetime
 
 app = FastAPI()
 
-# SocketIO setup
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # Set the list of allowed origins
+    allow_credentials=True,  # Allow cookies and authentication headers
+    allow_methods=["*"],     # Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],     # Allow all headers (Authorization, Content-Type, etc.)
+)
 
 
 @app.get("/")
@@ -259,21 +267,52 @@ def add_driver_to_fleet(
 
     return {"message": "Driver added to fleet successfully"}
 
-active_connections = {}
+active_connections: Dict[str, WebSocket] = {}  
+driver_locations: Dict[str, dict] = {}  
 
-@app.websocket("/ws/{user_id}")
-async def websocket_endpoint(websocket: WebSocket, user_id: str):
+@app.websocket("/ws/socket/user")
+async def user_websocket(websocket: WebSocket, token: str):
+    
+    payload = services.validate_jwt(token)
+    user_id = payload.get("sub")  
     await websocket.accept()
-    active_connections[user_id] = websocket  # Store the connection for this user
+    active_connections[user_id] = websocket
+
+    print(active_connections)
+    try:
+        while True:
+            await websocket.receive_json() 
+            print(f"User: {user_id}")
+    except WebSocketDisconnect:
+
+        print(f"User {user_id} disconnected")
+
+
+@app.websocket("/ws/socket/driver")
+async def driver_websocket(websocket: WebSocket, token: str):
+    payload = services.validate_jwt(token)
+    driver_id = payload.get("sub")  # Get driver ID from token
+    await websocket.accept()
+    active_connections[driver_id] = websocket  # Store driver's WebSocket connection
 
     try:
         while True:
-            data = await websocket.receive_text()
-            if data == "hi":
-                await websocket.send_text("hi")
+            # Assume driver sends location as JSON: {"lat": <latitude>, "lng": <longitude>, "user_id": <user_id>}
+            data = await websocket.receive_json()
+            user_id = data.get("user_id")  # Get the user_id to whom this location belongs
+            lat = data.get("lat")
+            lng = data.get("lng")
+            print(f"Driver {driver_id}, lat: {lat}, lng: {lng}")
+            print(active_connections)
+            # if user_id in active_connections:
+                # If the user is connected, send the driver's location to the user
+            await active_connections[int(user_id)].send_json({
+                "driver_lat": lat,
+                "driver_lng": lng
+            })
     except WebSocketDisconnect:
-        del active_connections[user_id]  # Remove the connection when the user disconnects
+        print(f"Driver {driver_id} disconnected")
 
-# Running both FastAPI and SocketIO
+
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", lifespan="on", reload=True)
