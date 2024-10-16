@@ -29,7 +29,7 @@ const SignUp = () => {
       
       if (response.status === 200) {
        
-        navigate("/login");
+        navigate("/customer/login");
       }
     } catch (err) {
       console.log(err);

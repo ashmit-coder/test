@@ -81,10 +81,35 @@ const BookingComponent = () => {
     setRideOptions(options);
   };
 
-  const confirmBooking = (weightRange, distance, cost) => {
-    alert(`Booking confirmed for ${weightRange} with a cost of $${cost}.`);
-    // Add your booking confirmation logic here
+  const confirmBooking = async (weightRange, distance, cost) => {
+    const bookingData = {
+      pickup_location: pickup.label,
+      dropoff_location: dropup.label,
+      price: cost,
+      capacity: weightRange,
+    };
+  
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bookingData),
+      });
+  
+      if (response.ok) {
+        const responseData = await response.json();
+        alert(`Booking confirmed! Details: ${JSON.stringify(responseData)}`);
+      } else {
+        alert("Error confirming booking. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred while confirming your booking.");
+    }
   };
+  
 
   useEffect(() => {
     if (pickupLatLng && dropLatLng) {
